@@ -1,2 +1,2 @@
-# red_neuronal_basica
+# redes_neuronales
 Primer repositorio en GitHub
