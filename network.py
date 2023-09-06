@@ -1,67 +1,64 @@
-# %load network.py
-
-"""
-network.py
-~~~~~~~~~~
-IT WORKS
-
-A module to implement the stochastic gradient descent learning
-algorithm for a feedforward neural network.  Gradients are calculated
-using backpropagation.  Note that I have focused on making the code
-simple, easily readable, and easily modifiable.  It is not optimized,
-and omits many desirable features.
-"""
-
 #### Libraries
 # Standard library
 import random
 
 # Third-party libraries
 import numpy as np
-
+"""
+Hacemos uso (importamos) de random y numpy, que son librerias que contienen funciones (codigo que ya ha sido creado por
+otras personas) que nos seran de utilidad a lo largo del presente codigo.
+"""
 class Network(object):
-
+    """
+    Se creo la clase Network, la cual contiene los atributos:
+    -num_layers, el cual sera el numero de capas que contiene la red neuronal
+    -sizes, que es una lista con el numero de neuronas en la respectiva capa de la red neuronal, por ejemlo, si la lista
+    fuera [2, 3, 1] entonces seria una red neuronal de 3 capas con 2 neuronas en la primera capa, 3 neuronas en la
+    segunda capa y 1 neurona en la capa final.
+    -'Biases' (sesgos) y 'Weights' (pesos).
+    """
     def __init__(self, sizes):
-        """The list ``sizes`` contains the number of neurons in the
-        respective layers of the network.  For example, if the list
-        was [2, 3, 1] then it would be a three-layer network, with the
-        first layer containing 2 neurons, the second layer 3 neurons,
-        and the third layer 1 neuron.  The biases and weights for the
-        network are initialized randomly, using a Gaussian
-        distribution with mean 0, and variance 1.  Note that the first
-        layer is assumed to be an input layer, and by convention we
-        won't set any biases for those neurons, since biases are only
-        ever used in computing the outputs from later layers."""
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
+        """Los biases y weights son inicializados de forma aleatoria a traves de la funcion np.random.randn,los biases 
+        inicia en '1' ya que la capa '0' es la capa de entradas y en esta se omite establecer cualquier sesgo para esas 
+        neuronas, ya que los sesgos solo se utilizan para calcular las salidas de capas posteriores. 
+        """
+
     def feedforward(self, a):
-        """Return the output of the network if ``a`` is input."""
+        """En este metodo, dados los biases y weights hacemos uso de la funcion sigmoide (funcion de activacion)
+        para la activacion de las neuronas."""
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(np.dot(w, a)+b)
         return a
 
+
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             test_data=None):
-        """Train the neural network using mini-batch stochastic
-        gradient descent.  The ``training_data`` is a list of tuples
-        ``(x, y)`` representing the training inputs and the desired
-        outputs.  The other non-optional parameters are
-        self-explanatory.  If ``test_data`` is provided then the
-        network will be evaluated against the test data after each
-        epoch, and partial progress printed out.  This is useful for
-        tracking progress, but slows things down substantially."""
+        """Stochastic gradient descent (SGD) es un método que calcula las predicciones y errores de 1 elemento escogido
+         aleatoriamente de nuestro minibatch.  Los datos de entrenamiento (`training_data`) es una lista de datos que
+         "capacitaran" a la red neuronal hasta que aprenda cómo proporcionar la respuesta adecuada.
+         Los datos de prueba (test data) son son los datos que nos 'reservamos' para comprobar si el modelo que hemos
+         generado a partir de los datos de entrenamiento 'funciona'. Despues de cada epoca se comprobara la eficacia
+         de la red."""
 
         training_data = list(training_data)
         n = len(training_data)
-
+        """la funcion len(training_data) nos da el numero de elementos de los datos de entrenamiento."""
         if test_data:
             test_data = list(test_data)
             n_test = len(test_data)
 
+
+        """Las variables epochs y mini_batch_size son la cantidad de épocas para entrenar y el tamaño de los 
+        minibatches respectivamente, que se usarán al realizar el muestreo. Eta 'η' es la tasa de aprendizaje. 
+        El programa evaluará la eficacia de la red después de cada época de entrenamiento e 'imprimira' el progreso 
+        parcial. Esto nos indicara el progreso y que tan eficaz es la red, otra forma de hacerlo pudo haber sido la 
+        elaboracion de una grafica de 'loss' vs epocas."""
         for j in range(epochs):
             random.shuffle(training_data)
             mini_batches = [
@@ -75,10 +72,10 @@ class Network(object):
                 print("Epoch {} complete".format(j))
 
     def update_mini_batch(self, mini_batch, eta):
-        """Update the network's weights and biases by applying
-        gradient descent using backpropagation to a single mini batch.
-        The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
-        is the learning rate."""
+        """La red mejorara haciendo que la funcion de costo sea menor, esto a traves de ir modificando los pesos y
+         sesgos aplicando el SGD mediante Back propagation a un minibatch. Entonces nabla_b sera la aproximacion al
+         gradiente de la funcion de costo respecto a cada sesgo y nabla_w la aproximacion al gradiente de la funcion de
+         costo respecto a cada peso."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
@@ -91,10 +88,8 @@ class Network(object):
                        for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
-        """Return a tuple ``(nabla_b, nabla_w)`` representing the
-        gradient for the cost function C_x.  ``nabla_b`` and
-        ``nabla_w`` are layer-by-layer lists of numpy arrays, similar
-        to ``self.biases`` and ``self.weights``."""
+        """(nabla_b, nabla_w) representan el gradiente de la función de costo C_x. ``nabla_b``
+         y ``nabla_w`` son listas capa por capa de matrices numpy."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         # feedforward
@@ -111,12 +106,7 @@ class Network(object):
             sigmoid_prime(zs[-1])
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
-        # Note that the variable l in the loop below is used a little
-        # differently to the notation in Chapter 2 of the book.  Here,
-        # l = 1 means the last layer of neurons, l = 2 is the
-        # second-last layer, and so on.  It's a renumbering of the
-        # scheme in the book, used here to take advantage of the fact
-        # that Python can use negative indices in lists.
+
         for l in range(2, self.num_layers):
             z = zs[-l]
             sp = sigmoid_prime(z)
@@ -150,6 +140,14 @@ def sigmoid_prime(z):
 
 import mnist_loader
 training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-
+"""Importamos el archivo mnist_loader, el cual arroja los datos de la base de datos MNIST como una tupla que contiene
+los datos de entrenamiento, los datos de validacion y los datos de prueba.
+."""
 net = Network([784, 30, 10])
+"""Para esta red, pondremos una capa inicial de 784 neuronas, 30 neuronas en la capa intermedia y 10 neuronas en la capa
+final (1 neurona por cada digito).
+"""
 net.SGD(training_data, 30, 10, 3.0, test_data=test_data)
+"""La red tendra 30 epocas, minibatches de tamaño 10, una tasa de aprendizaje de 3.0 y los datos de prueba se tomaran
+del archivo mnist_loader que hemos importado.
+"""
