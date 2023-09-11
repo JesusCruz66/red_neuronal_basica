@@ -37,8 +37,8 @@ class Network(object):
         return a
 
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta,
-            test_data=None):
+    def SGD_momentum(self, training_data, epochs, mini_batch_size, eta,
+            test_data=None, Beta=0.1):
         """Stochastic gradient descent (SGD) es un método que calcula las predicciones y errores de 1 elemento escogido
          aleatoriamente de nuestro minibatch.  Los datos de entrenamiento (`training_data`) es una lista de datos que
          "capacitaran" a la red neuronal hasta que aprenda cómo proporcionar la respuesta adecuada.
@@ -71,21 +71,33 @@ class Network(object):
             else:
                 print("Epoch {} complete".format(j))
 
-    def update_mini_batch(self, mini_batch, eta):
+    def update_mini_batch(self, mini_batch, eta, Beta=0.1):
         """La red mejorara haciendo que la funcion de costo sea menor, esto a traves de ir modificando los pesos y
          sesgos aplicando el SGD mediante Back propagation a un minibatch. Entonces nabla_b sera la aproximacion al
          gradiente de la funcion de costo respecto a cada sesgo y nabla_w la aproximacion al gradiente de la funcion de
          costo respecto a cada peso."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
+        v_t_previousw = [np.zeros(w.shape) for w in self.weights]
+        v_t_previousb = [np.zeros(b.shape) for b in self.biases]
+        v_wt = [np.zeros(w.shape) for w in self.weights]
+        v_bt = [np.zeros(b.shape) for b in self.biases]
+
+
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(mini_batch))*nw
-                        for w, nw in zip(self.weights, nabla_w)]
-        self.biases = [b-(eta/len(mini_batch))*nb
-                       for b, nb in zip(self.biases, nabla_b)]
+            v_wt = [Beta * v_wtp + (1 - Beta) * nw+dnw for v_wtp, nw, dnw in zip(v_t_previousw, nabla_w, delta_nabla_w)]
+            v_bt = [Beta * v_wtp + (1 - Beta) * nb+dnb for v_wtp, nb, dnb in zip(v_t_previousb, nabla_b, delta_nabla_b)]
+
+            v_t_previousw = v_wt
+            v_t_previousb = v_bt
+
+        self.weights = [w-(eta/len(mini_batch))*vw
+                        for w, vw in zip(self.weights, v_wt)]
+        self.biases = [b-(eta/len(mini_batch))*vb
+                       for b, vb in zip(self.biases, v_bt)]
 
     def backprop(self, x, y):
         """(nabla_b, nabla_w) representan el gradiente de la función de costo C_x. ``nabla_b``
@@ -147,7 +159,7 @@ net = Network([784, 30, 10])
 """Para esta red, pondremos una capa inicial de 784 neuronas, 30 neuronas en la capa intermedia y 10 neuronas en la capa
 final (1 neurona por cada digito).
 """
-net.SGD(training_data, 30, 10, 3.0, test_data=test_data)
+net.SGD_momentum(training_data, 30, 10, 3.0, test_data=test_data)
 """La red tendra 30 epocas, minibatches de tamaño 10, una tasa de aprendizaje de 3.0 y los datos de prueba se tomaran
 del archivo mnist_loader que hemos importado.
 """
