@@ -119,6 +119,14 @@ class Network(object):
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
 
+        activations_soft = [] # capa softmax
+        for z in (zs):
+            activation_soft = softmax(z)
+            activations_soft.append(activation_soft)
+
+
+
+
         for l in range(2, self.num_layers):
             z = zs[-l]
             sp = sigmoid_prime(z)
@@ -149,6 +157,9 @@ def sigmoid(z):
 def sigmoid_prime(z):
     """Derivative of the sigmoid function."""
     return sigmoid(z)*(1-sigmoid(z))
+
+def softmax(z):
+    return np.exp(z) / np.sum(np.exp(z))
 
 import mnist_loader
 training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
