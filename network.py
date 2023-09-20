@@ -7,11 +7,11 @@ from tensorflow import keras
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
-from tensorflow.keras.optimizers import SGD, RMSprop
+from tensorflow.keras.optimizers import SGD, RMSprop, Adam
 
 
-learning_rate = 3
-epochs = 20
+learning_rate = 1.5
+epochs = 25
 batch_size = 10
 
 dataset=mnist.load_data()
@@ -32,12 +32,11 @@ y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Dense(100, activation='sigmoid', input_shape=(784,)))
-model.add(Dense(100, activation='sigmoid'))
-model.add(Dense(num_classes, activation='softmax'))
+model.add(Dense(350, activation='sigmoid', input_shape=(784,)))
+model.add(Dense(num_classes, activation='sigmoid'))
 model.summary()
 
-model.compile(loss='categorical_crossentropy',optimizer=RMSprop(learning_rate=learning_rate, rho=0.9, momentum=0.1 ),metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',optimizer=SGD(learning_rate=learning_rate, momentum=0.1),metrics=['accuracy'])
 
 history = model.fit(x_trainv, y_trainc,
                     batch_size=batch_size,
