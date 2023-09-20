@@ -33,7 +33,7 @@ y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
 model.add(Dense(350, activation='sigmoid', kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4), input_shape=(784,)))
-
+model.add(Dropout(0.2))
 model.add(Dense(num_classes, activation='sigmoid', kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4)))
 model.summary()
 
