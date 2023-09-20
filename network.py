@@ -32,11 +32,11 @@ y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Dense(30, activation='sigmoid', input_shape=(784,)))
+model.add(Dense(100, activation='sigmoid', input_shape=(784,)))
 model.add(Dense(num_classes, activation='sigmoid'))
 model.summary()
 
-model.compile(loss='MeanSquaredError',optimizer=SGD(learning_rate=learning_rate, momentum=0.1),metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',optimizer=SGD(learning_rate=learning_rate, momentum=0.1),metrics=['accuracy'])
 
 history = model.fit(x_trainv, y_trainc,
                     batch_size=batch_size,
