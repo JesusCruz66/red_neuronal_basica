@@ -6,9 +6,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation
+from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.optimizers import SGD, RMSprop, Adam
-
+from tensorflow.keras import regularizers
 
 learning_rate = 1.5
 epochs = 25
@@ -32,8 +32,8 @@ y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Dense(350, activation='sigmoid', input_shape=(784,)))
-model.add(Dense(num_classes, activation='sigmoid'))
+model.add(Dense(350, activation='sigmoid', kernel_regularizer=regularizers.L1(l1=1e-5), input_shape=(784,)))
+model.add(Dense(num_classes, activation='sigmoid', kernel_regularizer=regularizers.L1(l1=1e-5)))
 model.summary()
 
 model.compile(loss='categorical_crossentropy',optimizer=SGD(learning_rate=learning_rate, momentum=0.1),metrics=['accuracy'])
