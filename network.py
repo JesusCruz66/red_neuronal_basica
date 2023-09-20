@@ -32,8 +32,9 @@ y_trainc = keras.utils.to_categorical(y_train, num_classes)
 y_testc = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Dense(350, activation='sigmoid', kernel_regularizer=regularizers.L2(l2=1e-4), input_shape=(784,)))
-model.add(Dense(num_classes, activation='sigmoid', kernel_regularizer=regularizers.L2(l2=1e-4)))
+model.add(Dense(350, activation='sigmoid', kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4), input_shape=(784,)))
+
+model.add(Dense(num_classes, activation='sigmoid', kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4)))
 model.summary()
 
 model.compile(loss='categorical_crossentropy',optimizer=SGD(learning_rate=learning_rate, momentum=0.1),metrics=['accuracy'])
